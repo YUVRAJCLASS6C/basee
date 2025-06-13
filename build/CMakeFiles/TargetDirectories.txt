@@ -1,0 +1,5 @@
+/mnt/c/Users/Asus/Favorites/base/build/CMakeFiles/malloc_l.dir
+/mnt/c/Users/Asus/Favorites/base/build/CMakeFiles/lib_impl.dir
+/mnt/c/Users/Asus/Favorites/base/build/CMakeFiles/exe.dir
+/mnt/c/Users/Asus/Favorites/base/build/CMakeFiles/edit_cache.dir
+/mnt/c/Users/Asus/Favorites/base/build/CMakeFiles/rebuild_cache.dir
