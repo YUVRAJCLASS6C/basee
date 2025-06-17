@@ -1,5 +1,8 @@
 #include "FD.h"
 #include <string.h>
+#define u64 unsigned long long int
+#define u32 unsigned long int
+#define u16 unsigned short int
 void *simple_alloc(size_t num){
   void* ptr = MMAP_DEF__(num);
   #if defined(__linux__)
@@ -10,6 +13,10 @@ void *simple_alloc(size_t num){
   assert(ptr != NULLL);
   #endif
   return ptr;
+}
+typedef struct string {
+  char* head;
+  u64 size;
 }
 void * HEAPCPY(const void * a, uint64_t s){
   void* ptr = simple_alloc(s);
