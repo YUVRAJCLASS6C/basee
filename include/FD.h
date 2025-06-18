@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -12,10 +13,15 @@
 #include <inttypes.h>
 #include <malloc.h>
 #if defined(__linux__)
+  void * init_pb = NULL;
   #include <sys/mman.h>
   #define MMAP_DEF__(num) (mmap(NULL,(num),PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS,-1,0))
-#define MAP_ADDR(num,mul) (mmap((num),(mul)*getpagesize(),PROT_READ | PROT_WRITE,MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED,-1,0))
-void map_adder(void * adder,uint8_t mul);
+  #define MAP_ADDR(num,mul) (mmap((num),(mul)*getpagesize(),PROT_READ | PROT_WRITE,MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED,-1,0))
+  void map_adder(void * adder,uint8_t mul);
+  __attribute__((constructor))
+  void before_main(){
+    init_pb = sbrk(0);
+  }
 #else
   #include <windows.h>
   #define MMAP_DEF__(num) malloc(num)

@@ -6,5 +6,5 @@ C_DEFINES =
 
 C_INCLUDES = -I/mnt/c/Users/Asus/Favorites/base/include
 
-C_FLAGS = -std=gnu2x
+C_FLAGS = -g -lm -O0  -std=gnu2x
 

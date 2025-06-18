@@ -1,1 +1,1 @@
-/usr/bin/cc -fPIC -shared -Wl,-soname,liblib_impl.so -o liblib_impl.so CMakeFiles/lib_impl.dir/impl/impl.c.o  -Wl,-rpath,/mnt/c/Users/Asus/Favorites/base/build -lm libmalloc_l.so -lm 
+/usr/bin/cc -fPIC -g -lm -O0  -shared -Wl,-soname,liblib_impl.so -o liblib_impl.so CMakeFiles/lib_impl.dir/impl/impl.c.o  -Wl,-rpath,/mnt/c/Users/Asus/Favorites/base/build -lm libmalloc_l.so -lm 
