@@ -11,18 +11,32 @@
 #include <malloc.h>
 #include <errno.h>
 
+#define u64 unsigned long long int
+#define u32 unsigned long int
+#define u16 unsigned short int
+
+
 #if defined(__linux__)
     extern void *init_pb;
+
     #include <sys/mman.h>
     #define MMAP_DEF__(num) (mmap(NULL, (num), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0))
     #define MAP_ADDR(num, mul) (mmap((num), (mul) * getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0))
     void map_adder(void *adder, uint8_t mul);
 
     struct Heap_info {
+        char a;
         void *Next_chunk;
+    };
+    struct Virtual_addr {
+        char a;
+        u64 size;
     };
 #else
     #include <windows.h>
+    #if !defined(_CRT_SECURE_NO_WARNINGS)
+        #define _CRT_SECURE_NO_WARNINGS
+#endif
     #define MMAP_DEF__(num) malloc(num)
 #endif
 
@@ -30,12 +44,7 @@ void *HEAPCPY(const void *a, uint64_t s);
 void *simple_alloc(size_t num);
 int get_fd(const char *filepath, int file_flag);
 void simple_realloc(void **ptr, size_t old_s, size_t new_s);
-void simple_free(void *ptr, size_t size);
-
-#define u64 unsigned long long int
-#define u32 unsigned long int
-#define u16 unsigned short int
-
+void simple_free(void *ptr);
 static int is_zero(const void *ptr, size_t size) {
     const unsigned char *p = ptr;
     for (size_t i = 0; i < size; i++) {
@@ -46,6 +55,8 @@ static int is_zero(const void *ptr, size_t size) {
     return 1;
 }
 
+
+
 void *simple_alloc(size_t num) {
     if (num <= 0) {
         return NULL;
@@ -55,26 +66,33 @@ void *simple_alloc(size_t num) {
 
 #if defined(__linux__)
     if (num < 100000) {
-        struct Heap_info *start = sbrk(num + sizeof(struct Heap_info));
+        struct Heap_info *start = sbrk(num + sizeof(struct Heap_info)+1);
 
+        
         while (start->Next_chunk != 0) {
             start = (struct Heap_info *)start->Next_chunk;
         }
 
         void **start_s = (void **)start;
-        start->Next_chunk = (void *)((char *)start + num + sizeof(struct Heap_info));
-        start_s = start + num + sizeof(struct Heap_info);
-        ptr = start + sizeof(struct Heap_info);
+        start->a = 'H';
+        start->Next_chunk = (void *)((char *)start + num + sizeof(struct Heap_info)+1);
+        start_s = (char *)start + num + sizeof(struct Heap_info);
+        ptr = (char *)start + sizeof(struct Heap_info) + 1;
 
     } else {
-        ptr = MMAP_DEF__(num);
+        size_t total_bytes = ( num + sizeof(struct Virtual_addr));
+        ptr = MMAP_DEF__(total_bytes);
         if (ptr == MAP_FAILED) {
             perror("mmap");
             exit(1);
         }
+        struct Virtual_addr * info = ptr;
+        info->a = 'V';
+        info->size = total_bytes;
+        ptr = info +1;
     }
 #else
-    ptr = malloc(num);
+ ptr = VirtualAlloc(NULL, num, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 #endif
 
     return ptr;
@@ -90,6 +108,7 @@ void *HEAPCPY(const void *a, uint64_t s) {
     memcpy(ptr, a, s);
     return ptr;
 }
+#if defined(__linux__)
 
 void map_adder(void *adder, uint8_t mul) {
     void *ptr = MAP_ADDR(adder, mul);
@@ -98,18 +117,21 @@ void map_adder(void *adder, uint8_t mul) {
         exit(1);
     }
 }
-
-void simple_free(void *ptr, size_t size) {
+#endif
+void simple_free(void *ptr) {
 #if defined(_WIN32) || defined(_WIN64)
-    free(ptr);
+    VirtualFree(ptr, 0, MEM_RELEASE);
 #else
-    if (size == 0) {
-        return;
+    struct Virtual_addr *info = ((struct Virtual_addr *)ptr) - 1;
+    if (info->a == 'V'){
+        int err = munmap(info,info->size);
+        if (err == -1) {
+            perror("munmap");
+            exit(1);
+        }
     }
+    else {
 
-    int err = munmap(ptr, size);
-    if (err == -1) {
-        perror("munmap");
     }
 #endif
 }
@@ -117,7 +139,7 @@ void simple_free(void *ptr, size_t size) {
 void simple_realloc(void **ptr, size_t old_s, size_t new_s) {
     void *n_ptr = simple_alloc(new_s);
     memcpy(n_ptr, *ptr, old_s);
-    simple_free(*ptr, old_s);
+    simple_free(*ptr);
     *ptr = n_ptr;
 }
 
