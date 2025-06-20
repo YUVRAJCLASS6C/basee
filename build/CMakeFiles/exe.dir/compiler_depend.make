@@ -22,6 +22,7 @@ CMakeFiles/exe.dir/src/main.c.o: /mnt/c/Users/Asus/Favorites/base/src/main.c \
   /usr/include/stdlib.h \
   /usr/include/string.h \
   /usr/include/strings.h \
+  /usr/include/time.h \
   /usr/include/unistd.h \
   /usr/include/x86_64-linux-gnu/asm/errno.h \
   /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h \
@@ -67,6 +68,7 @@ CMakeFiles/exe.dir/src/main.c.o: /mnt/c/Users/Asus/Favorites/base/src/main.c \
   /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h \
   /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
   /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h \
+  /usr/include/x86_64-linux-gnu/bits/time.h \
   /usr/include/x86_64-linux-gnu/bits/time64.h \
   /usr/include/x86_64-linux-gnu/bits/timesize.h \
   /usr/include/x86_64-linux-gnu/bits/types.h \
@@ -83,8 +85,10 @@ CMakeFiles/exe.dir/src/main.c.o: /mnt/c/Users/Asus/Favorites/base/src/main.c \
   /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
   /usr/include/x86_64-linux-gnu/bits/types/time_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/timer_t.h \
   /usr/include/x86_64-linux-gnu/bits/typesizes.h \
@@ -130,6 +134,8 @@ CMakeFiles/exe.dir/src/main.c.o: /mnt/c/Users/Asus/Favorites/base/src/main.c \
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h:
 
+/usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h:
+
 /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/locale_t.h:
@@ -146,11 +152,15 @@ CMakeFiles/exe.dir/src/main.c.o: /mnt/c/Users/Asus/Favorites/base/src/main.c \
 
 /usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
 
+/usr/include/x86_64-linux-gnu/bits/types/struct_tm.h:
+
 /usr/include/x86_64-linux-gnu/bits/types/FILE.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/time64.h:
+
+/usr/include/x86_64-linux-gnu/bits/time.h:
 
 /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h:
 
@@ -159,6 +169,8 @@ CMakeFiles/exe.dir/src/main.c.o: /mnt/c/Users/Asus/Favorites/base/src/main.c \
 /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
+
+/usr/include/x86_64-linux-gnu/bits/stdint-least.h:
 
 /usr/include/x86_64-linux-gnu/bits/endianness.h:
 
@@ -192,15 +204,17 @@ CMakeFiles/exe.dir/src/main.c.o: /mnt/c/Users/Asus/Favorites/base/src/main.c \
 
 /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h:
 
+/usr/include/time.h:
+
+/mnt/c/Users/Asus/Favorites/base/src/main.c:
+
+/usr/include/fcntl.h:
+
 /usr/include/x86_64-linux-gnu/bits/floatn-common.h:
 
 /usr/include/x86_64-linux-gnu/bits/iscanonical.h:
 
 /usr/include/malloc.h:
-
-/mnt/c/Users/Asus/Favorites/base/src/main.c:
-
-/usr/include/fcntl.h:
 
 /usr/include/features.h:
 
@@ -309,5 +323,3 @@ CMakeFiles/exe.dir/src/main.c.o: /mnt/c/Users/Asus/Favorites/base/src/main.c \
 /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h:
 
 /usr/include/x86_64-linux-gnu/bits/select.h:
-
-/usr/include/x86_64-linux-gnu/bits/stdint-least.h:

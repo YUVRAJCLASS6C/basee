@@ -6,5 +6,5 @@ C_DEFINES = -Dlib_impl_EXPORTS
 
 C_INCLUDES = -I/mnt/c/Users/Asus/Favorites/base/include
 
-C_FLAGS = -g -lm -O0  -std=gnu2x -fPIC
+C_FLAGS = -g -pg -lm -O0  -std=gnu2x -fPIC
 

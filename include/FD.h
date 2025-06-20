@@ -12,11 +12,12 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <malloc.h>
+#define ___CONS_ ((1ULL << 53) - 1)
 #if defined(__linux__)
   void * init_pb = NULL;
   long __pagesize;
   #include <sys/mman.h>
-  #define MMAP_DEF__(num) (mmap(NULL,(num),PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS,-1,0))
+  #define MMAP_DEF__(num) (mmap(NULL,(num),PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS|MAP_NORESERVE,-1,0))
   #define MAP_ADDR(num,mul) (mmap((num),(mul)*getpagesize(),PROT_READ | PROT_WRITE,MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED,-1,0))
   void map_adder(void * adder,uint8_t mul);
   __attribute__((constructor))

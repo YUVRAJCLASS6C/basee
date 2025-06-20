@@ -1,1 +1,1 @@
-/usr/bin/cc -g -lm -O0  CMakeFiles/exe.dir/src/main.c.o -o exe  -Wl,-rpath,/mnt/c/Users/Asus/Favorites/base/build liblib_impl.so libmalloc_l.so -lm 
+/usr/bin/cc -g -pg -lm -O0  CMakeFiles/exe.dir/src/main.c.o -o exe  -Wl,-rpath,/mnt/c/Users/Asus/Favorites/base/build liblib_impl.so libmalloc_l.so -lm 

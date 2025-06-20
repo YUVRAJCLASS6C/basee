@@ -18,19 +18,17 @@
 
 #if defined(__linux__)
     extern void *init_pb;
-
+    void *end_pb;
     #include <sys/mman.h>
     #define MMAP_DEF__(num) (mmap(NULL, (num), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0))
     #define MAP_ADDR(num, mul) (mmap((num), (mul) * getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0))
     void map_adder(void *adder, uint8_t mul);
 
     struct Heap_info {
-        char a;
-        void *Next_chunk;
+        uint64_t num;
     };
     struct Virtual_addr {
-        char a;
-        u64 size;
+        uint64_t num;
     };
 #else
     #include <windows.h>
@@ -66,29 +64,29 @@ void *simple_alloc(size_t num) {
 
 #if defined(__linux__)
     if (num < 100000) {
-        struct Heap_info *start = sbrk(num + sizeof(struct Heap_info)+1);
-
+        struct Heap_info *start = sbrk(num + sizeof(struct Heap_info));
         
-        while (start->Next_chunk != 0) {
-            start = (struct Heap_info *)start->Next_chunk;
+        uint64_t r = (start->num & ((1ULL << 64) - 1)); 
+        while (r != 0) {
+            start = (uint16_t * )start + r;
+            r = ((start->num) & ((1ULL << 64) - 1));
         }
 
         void **start_s = (void **)start;
-        start->a = 'H';
-        start->Next_chunk = (void *)((char *)start + num + sizeof(struct Heap_info)+1);
-        start_s = (char *)start + num + sizeof(struct Heap_info);
-        ptr = (char *)start + sizeof(struct Heap_info) + 1;
+        start->num = (((num + sizeof(struct Heap_info) + 1) >> 1));
+        start->num |= 1ULL << 63;
+        ptr = (char *)start + sizeof(struct Heap_info) ;
 
     } else {
-        size_t total_bytes = ( num + sizeof(struct Virtual_addr));
-        ptr = MMAP_DEF__(total_bytes);
+        uint64_t r = (( num + sizeof(struct Virtual_addr) + 4095) >> 12);
+        size_t total_bytes = r;
+        ptr = MMAP_DEF__(total_bytes << 12);
         if (ptr == MAP_FAILED) {
             perror("mmap");
             exit(1);
         }
         struct Virtual_addr * info = ptr;
-        info->a = 'V';
-        info->size = total_bytes;
+        info->num = total_bytes;
         ptr = info +1;
     }
 #else
@@ -123,10 +121,10 @@ void simple_free(void *ptr) {
     VirtualFree(ptr, 0, MEM_RELEASE);
 #else
     struct Virtual_addr *info = ((struct Virtual_addr *)ptr) - 1;
-    if (info->a == 'V'){
-        int err = munmap(info,info->size);
+    if ((info->num >> 63 ) == 0){
+        int err = madvise(info,(info->num & ((1ULL << 53) - 1)) << 12,MADV_DONTNEED);
         if (err == -1) {
-            perror("munmap");
+            perror("madvise");
             exit(1);
         }
     }
