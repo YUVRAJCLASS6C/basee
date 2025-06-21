@@ -18,7 +18,8 @@
 
 #if defined(__linux__)
     extern void *init_pb;
-    void *end_pb;
+    volatile void *end_pb;
+    int is_run = 0;
     #include <sys/mman.h>
     #define MMAP_DEF__(num) (mmap(NULL, (num), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0))
     #define MAP_ADDR(num, mul) (mmap((num), (mul) * getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0))
@@ -38,6 +39,34 @@
     #define MMAP_DEF__(num) malloc(num)
 #endif
 
+#if defined(__x86_64__) || defined(_M_X64) || defined(__aarch64__) || defined(__ppc64__)
+#define log2(x) (63 - __builtin_clzll((unsigned long long)(x)))
+#else
+#define log2(x) (31 - __builtin_clz((unsigned int)(x)))
+#endif
+unsigned long pagesize ;
+uint8_t ex;
+void base(){
+    if (is_run == 0){
+    end_pb = init_pb;
+    #if defined(__linux__)
+
+    pagesize = sysconf(_SC_PAGESIZE);
+#else 
+
+SYSTEM_INFO si;
+GetSystemInfo(&si);
+ pagesize = si.dwPageSize;
+#endif
+ex = log2(pagesize);
+        is_run = 1;
+    }
+}
+__attribute__((constructor))
+void my_init() {
+    base();
+}
+
 void *HEAPCPY(const void *a, uint64_t s);
 void *simple_alloc(size_t num);
 int get_fd(const char *filepath, int file_flag);
@@ -52,35 +81,34 @@ static int is_zero(const void *ptr, size_t size) {
     }
     return 1;
 }
-
+#define MB 1000000
 
 
 void *simple_alloc(size_t num) {
-    if (num <= 0) {
+    if (__builtin_expect(num <= 0,1)) {
         return NULL;
     }
 
     void *ptr;
 
 #if defined(__linux__)
-    if (num < 100000) {
+    if (num < MB) {
         struct Heap_info *start = sbrk(num + sizeof(struct Heap_info));
         
-        uint64_t r = (start->num & ((1ULL << 64) - 1)); 
+        uint64_t r = (start->num & ((1ULL << 61) - 1)); 
         while (r != 0) {
-            start = (uint16_t * )start + r;
-            r = ((start->num) & ((1ULL << 64) - 1));
+            start = (uint64_t * )start + r;
+            r = ((start->num) & ((1ULL << 61) - 1));
         }
 
-        void **start_s = (void **)start;
-        start->num = (((num + sizeof(struct Heap_info) + 1) >> 1));
+        start->num = (((num + sizeof(struct Heap_info) + 7) >> 3));
         start->num |= 1ULL << 63;
         ptr = (char *)start + sizeof(struct Heap_info) ;
 
     } else {
-        uint64_t r = (( num + sizeof(struct Virtual_addr) + 4095) >> 12);
+        uint64_t r = (( num + sizeof(struct Virtual_addr) + pagesize - 1) >> ex);
         size_t total_bytes = r;
-        ptr = MMAP_DEF__(total_bytes << 12);
+        ptr = MMAP_DEF__(total_bytes << ex);
         if (ptr == MAP_FAILED) {
             perror("mmap");
             exit(1);
@@ -122,7 +150,7 @@ void simple_free(void *ptr) {
 #else
     struct Virtual_addr *info = ((struct Virtual_addr *)ptr) - 1;
     if ((info->num >> 63 ) == 0){
-        int err = madvise(info,(info->num & ((1ULL << 53) - 1)) << 12,MADV_DONTNEED);
+        int err = madvise(info,(info->num & ((1ULL << 53) - 1)) << ex,MADV_DONTNEED);
         if (err == -1) {
             perror("madvise");
             exit(1);
